@@ -1,0 +1,89 @@
+---
+title: "Portfolio"
+author: "Andrew Gillreath-Brown"
+date: "11/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+
+g2 <- Chaco_original_graphs[[1]]
+g2 <- simplify(g2)
+
+V(g2)$grp <- as.character( sample(c(rep(1:3,each=6), 1)))
+
+bb <- layout_as_backbone(g2,keep=0.8)
+E(g2)$col <- F
+E(g2)$col[bb$backbone] <- T
+
+# l <- layout_mirror(g2, axis = "vertical")
+
+ggraph(g2,layout="stress")+
+  geom_edge_link0(aes(col=col),width=0.1)+
+  geom_node_point(aes(col=grp))+
+  scale_color_brewer(palette = "Set1")+
+  scale_edge_color_manual(values=c(rgb(0,0,0,0.3),rgb(0,0,0,1)))+
+  theme_graph()+
+  theme(legend.position = "none")
+
+
+
+
+netm <- get.adjacency(g2, attr="weight", sparse=F)
+
+colnames(netm) <- V(g2)$media
+
+rownames(netm) <- V(g2)$media
+
+
+palf <- colorRampPalette(rev(RColorBrewer::brewer.pal(11,"RdBu")))
+
+heatmap(netm[,17:1], Rowv = NA, Colv = NA, col = palf(100), 
+
+        scale="none", margins=c(10,10) )
+
+
+
+edge.start <- ends(g2, es=E(g2), names=F)[,1]
+edge.col <- V(g2)$grp[edge.start]
+plot.new()
+plot(g2, edge.color=edge.col, edge.curved=.1, vertex.color=V(g2)$grp, vertex.label=V(g2), vertex.label.color="black",
+     vertex.label.cex=.7)
+
+
+par(mfrow=c(1,2))
+plot.new()
+heatmap(netm[,19:1], Rowv = NA, Colv = NA, col = palf(4), labCol = (19:1),
+        scale="none", margins=c(10,10), main="Heat Map of Chacoan Archaeological Network (AD 800)") +
+legend(x="right", legend=c("min edges", "medium edges", "max edges"),fill=palf(4))
+plot(g2, edge.color=edge.col, edge.curved=.1, vertex.color=V(g2)$grp, vertex.label=V(g2), vertex.label.color="black",
+     vertex.label.cex=.7, main="Chacoan Archaeological Network (AD 800)")
+
+library(threejs)
+g2$layout <- graphlayouts::layout_with_stress3D(g2)
+graphjs(g2, bg = "black")
+
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
