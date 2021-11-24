@@ -17,6 +17,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r cars}
 
+
 g2 <- Chaco_original_graphs[[1]]
 g2 <- simplify(g2)
 
