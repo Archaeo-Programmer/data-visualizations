@@ -2,6 +2,11 @@ library(tidyverse)
 library(raster)
 library(sf)
 library(FedData)
+library(purrr)
+library(ggplot2)
+library(magick)
+
+set.seed(345)
 
 # Bounding box for study area.
 bb <-
@@ -16,108 +21,172 @@ bb <-
   sf::st_as_sf(crs = 4326) %>%
   sf::st_transform(crs = 4326)
 
-temperature <- raster("modern_temperature.tif")
+temperature <- raster::raster("modern_temperature.tif")
 
 # Create some new raster layers.
 temp_list <- replicate(20, temperature) %>% 
   # Change each layer by adding or subtracting a random value from a given list.
   purrr::map(., function(x){x + sample(c(0, 2, 4, 6, -2, -4, -6), 1)})
 
-# Create a raster stack.
-temp_rstack <- raster::stack(temp_list)
-# Create a raster brick.
-temp_rbrick <- raster::brick(temp_list)
-
 # Rename the layers (TS is Time Step).
-names(temp_rstack) <- c(paste0("TS", 1:20))
+names(temp_list) <- c(paste0("TS", 1:20))
 
 # Define custom color palette.
 colors <- colorRampPalette(rev(RColorBrewer::brewer.pal(11,"RdBu")))(255)
 
 # Get elevation data for southwestern Colorado using the bounding box extent.
-ned_SWCol <- get_ned(template = bb, label = "ned_SWCol", 
-                    res="1", force.redo = F)
+# ned_SWCol <- FedData::get_ned(template = bb, label = "ned_SWCol", 
+#                     res="1", force.redo = F)
+ned_SWCol <- raster::raster("./EXTRACTIONS/ned_SWCol/NED/ned_SWCol_NED_1.tif")
+
+# Put elevation and temperature rasters in the same resolution.
+ned_SWCol <- raster::projectRaster(ned_SWCol, temperature, method = 'ngb')
 
 # Create a hillshade file.
-NED.raster.cropped2 <- raster::crop(NED, bbox_buffer2)
-
-NED.raster.cropped2 <-  projectRaster(NED.raster.cropped2,tavg_preds_anom2_stdz[[1]],method = 'ngb')
-
-vep3_ned2 <- raster("EXTRACTIONS/vep3/NED/vep3_NED_1.tif")
-vep3_ned2 <- raster::aggregate(vep3_ned2, fact = 3)
-vep3_ned2 <-  projectRaster(vep3_ned2,tavg_preds_anom2_stdz[[1]],method = 'ngb')
-
-slope <- terrain(vep3_ned2, opt='slope')
-aspect <- terrain(vep3_ned2, opt='aspect')
-dsm.hill <- hillShade(slope, aspect,
-                      angle=40,
-                      direction=270)
-hill_spdf <- as(dsm.hill, "SpatialPixelsDataFrame")
+slope <- raster::terrain(ned_SWCol, opt='slope')
+aspect <- raster::terrain(ned_SWCol, opt='aspect')
+hill <- raster::hillShade(slope, aspect,
+                          angle = 40,
+                          direction = 270)
+hill_spdf <- as(hill, "SpatialPixelsDataFrame")
 hill_spdf <- as.data.frame(hill_spdf)
 colnames(hill_spdf) <- c("value", "x", "y")
 
+# Create a ggplot function for each raster layer.
+plot_temp_raster <-
+  function(x, y, hillshade, animation = TRUE) {
+    # Convert the raster to a dataframe for plotting in ggplot.
+    x <- as.data.frame(x, xy = TRUE)
+    
+    plots <- ggplot() +
+      ggplot2::geom_raster(
+        data = hillshade,
+        mapping = aes(x = x,
+                      y = y,
+                      alpha = value),
+        na.rm = TRUE
+      ) +
+      # use the "alpha hack"
+      scale_alpha(
+        name = "",
+        range = c(0.8, 0),
+        na.value = 0,
+        guide = "none"
+      )  +
+      geom_raster(
+        data = x,
+        aes(x = x, y = y, fill = modern_temperature),
+        alpha = 0.5,
+        na.rm = TRUE
+      ) +
+      scale_fill_gradientn(
+        colors = colorRampPalette(rev(RColorBrewer::brewer.pal(11, "RdBu")))(255),
+        limits = c(8 , 34),
+        na.value = "transparent",
+        name = "Temperature °C"
+      ) +
+      coord_equal() +
+      theme_classic() +
+      xlab("Longitude") +
+      ylab("Latitude") +
+      ggtitle(y) +
+      theme(
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.text = element_text(
+          size = 12,
+          colour = "black",
+          family = "Helvetica"
+        ),
+        axis.title.y = element_text(
+          size = 14,
+          family = "Helvetica",
+          margin = margin(
+            t = 10,
+            r = 5,
+            b = 10,
+            l = 10
+          )
+        ),
+        axis.title.x = element_text(
+          size = 14,
+          family = "Helvetica",
+          margin = margin(
+            t = 5,
+            r = 10,
+            b = 10,
+            l = 10
+          )
+        ),
+        plot.title = element_text(
+          hjust = 0.5,
+          size = 18,
+          family = "Helvetica"
+        ),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.text = element_text(size = 12, family = "Helvetica"),
+        legend.title = element_text(size = 12, family = "Helvetica")
+      )
+    
+    if (animation == TRUE) {
+      fp <-
+        file.path("./animation",
+                  paste0(y, ".png"))
+      
+      ggsave(
+        plot = plots,
+        filename = fp,
+        width = 8.5,
+        height = 5,
+        dpi = 400,
+        units = "in",
+        device = "png"
+      )
+    }
+    
+    return(plots)
+    
+  }
 
-names(tavg_preds_anom2_stdz) <- c("BC950","BC850","BC750", "BC650", "BC550","BC450", "BC350", "BC250", "BC150", "BC50", "AD50", "AD150", "AD250", "AD350", "AD450", "AD550", "AD650", "AD750", "AD850","AD950", "AD1050", "AD1150", "AD1250", "AD1350", "AD1450", "AD1550", "AD1650", "AD1750")
 
-anomaly_plots2 <-
+# Create ggplot objects for each raster layer.
+temperature_plots <-
   purrr::map2(
-    .x = tavg_preds_anom2_stdz, .y = names(tavg_preds_anom2_stdz),
+    .x = temp_list,
+    .y = names(temp_list),
     .f =
-      ~plot_map_anomaly(x = .x, x.name = .y, us.cities = us.cities, hillshade = hill_spdf, cities = FALSE, animation = TRUE)
+      ~ plot_temp_raster(
+        x = .x,
+        y = .y,
+        hillshade = hill_spdf,
+        animation = TRUE
+      )
   )
-
-# Arrange all of the plots, then can output below as PDF.
-anomaly_plots_arranged <- gridExtra::marrangeGrob(anomaly_plots, nrow=2, ncol=1, top=NULL)
-
-# Save as one pdf. Use scale here in order for the multi-plots to fit on each page.
-ggsave("/Users/andrewgillreath-brown/Dropbox/WSU/SKOPEII/Figures/anomaly_plots_arranged_west.pdf", anomaly_plots_arranged, scale = 1.5,
-       width = 210,
-       height = 297,
-       units = "mm")
-
-transition_manual(date)
 
 # Do quick animation with raster::animate.
 tavg_animated <- raster::animate(tavg_rbrick, n =2, col = colors)
 
 
-# Visualizing maize over the reconstructions.
-tavg_rbrick3 <- tavg_rbrick[[1:15]]
-usa <- map("state", fill = TRUE, plot = FALSE)
-par(mfrow=c(5,3), mai = c(.2, .35, .3, .3))
-for (ii in 1:nlayers(tavg_rbrick3)){
-  plot(subset(tavg_rbrick3,ii), main=names(tavg_rbrick3)[ii])
-  plot(MDB[[ii]], main=names(tavg_rbrick3)[ii], pch = 19, cex = 1, add=T)
-  polygon(usa$x, usa$y)
-}
-dev.off()
-
-#Gif animation
-## list file names and read in
-imgs <- list.files("/animation/", full.names = TRUE)
+# Create a gif animation of the raster layers.
+# List file names and read in files.
+imgs <- list.files("./animation", full.names = TRUE)
 
 # Put them in the correct order.
 bfile.names <- sub("\\..*$", "", basename(imgs))
-year.names <-
-  c("BC950","BC850","BC750", "BC650", "BC550","BC450", "BC350", "BC250", "BC150", "BC50", "AD50", "AD150", "AD250", "AD350", "AD450", "AD550", "AD650", "AD750", "AD850","AD950", "AD1050", "AD1150", "AD1250", "AD1350", "AD1450", "AD1550", "AD1650", "AD1750")
-year.number <- match(bfile.names, year.names)
-imgs <- imgs[ order(year.number) ]
+ts.order <- match(bfile.names, c(paste0("TS", 1:20)))
+imgs <- imgs[ order(ts.order) ]
 
+# Turn all images into a magick image.
+img_list <- purrr::map(imgs, magick::image_read)
 
-# index = c(28:24, 22:19, 23, 13, 6, 10:12, 14:18, 1:5, 7:9)
-# index = c(4, 3, 2, 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
-# imgs = imgs[order(index)]
-img_list <- lapply(imgs, magick::image_read)
-
-## join the images together
+# Join the images together.
 img_joined <- magick::image_join(img_list)
 
-## animate at 2 frames per second
-img_animated2 <- magick::image_animate(img_joined, fps = 20)
+# Animate at 2 frames per second
+img_animated <- magick::image_animate(img_joined, fps = 2)
 
-## view animated image
-img_animated
+# Save to disk
+magick::image_write(image = img_animated,
+                    path = "./animated_temperature.gif")
 
-## save to disk
-magick::image_write(image = img_animated2,
-                    path = "/animated_temperature.gif")
