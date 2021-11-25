@@ -4,7 +4,10 @@ library(ggraph)
 library(graphlayouts)
 library(dplyr)
 library(ggplot2)
-
+library(reshape2)
+library(tidygraph)
+library(forcats)
+library(RColorBrewer)
 
 # First, create a random network.
 set.seed(413)
