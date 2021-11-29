@@ -1,7 +1,8 @@
 library(terra)
 library(tmap)
+library(tidyverse)
 
-# Download .tif image from: https://earthobservatory.nasa.gov/images/88632/mesa-verde-national-park
+# Download .tif image from: https://earthobservatory.nasa.gov/images/88632/mesa-verde-national-park 
 MV <- rast("mesaverde_oli_2016228_geo.tif")
 
 map1 <-
