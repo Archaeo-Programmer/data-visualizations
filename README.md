@@ -8,3 +8,5 @@ This repository contains code for data visualizations.
 ![Animated temperature change in southwestern Colorado over 20 time steps](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/03-raster-timelapse/animated_temperature.gif?raw=true)
 
 ![Animated population pyramid that switches between three countries](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/04-animated-pyramid/animated-pyramid.gif?raw=true)
+
+![Animated line graphs for Ancient Wealth inequality for the New and Old World](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/05-animated-lines/world_animated_inequality_deltaYears.gif?raw=true)
