@@ -5,9 +5,11 @@ library(FedData)
 library(purrr)
 library(xts)
 library(dygraphs)
+library(leaflet)
 
 ned_swcol <-
-  raster::raster("../03-raster-timelapse/EXTRACTIONS/ned_SWCol/NED/ned_SWCol_NED_1.tif")
+  raster::raster("../03-raster-timelapse/EXTRACTIONS/ned_SWCol/NED/ned_SWCol_NED_1.tif") %>% 
+  crop(bb)
 
 # Bounding box for study area.
 bb <-
@@ -16,6 +18,19 @@ bb <-
     "xmax" = -108.2819,
     "ymin" = 37.03155,
     "ymax" = 37.66463
+  ) %>%
+  sf::st_bbox() %>%
+  sf::st_as_sfc() %>%
+  sf::st_as_sf(crs = 4326) %>%
+  sf::st_transform(crs = 4326)
+
+# Mesa Verde bounding box.
+bb <-
+  c(
+    "xmin" = -108.6,
+    "xmax" = -108.3,
+    "ymin" = 37.156469,
+    "ymax" = 37.350311
   ) %>%
   sf::st_bbox() %>%
   sf::st_as_sfc() %>%
@@ -123,6 +138,68 @@ prcp.xts<-xts(prcp.wide[,-1], order.by = prcp.wide[,1])
 dygraph(prcp.xts) %>%
   dyRangeSelector()
 
+# Calculate annual averages and create a final data.frame of values
+prcp.fin <- dplyr::filter(prcp, date > as.Date("2015-01-01")) %>%
+  group_by(STATION) %>%
+  summarize(prcpAvg = round(mean(precip, na.rm = T), 2)) %>%
+  rename(ID = STATION)
+
+prcp.fin <- left_join(prcp.fin, ghcn_pts, by = "ID")
 
 
+# Create SpatialPointsDataFrame from GHCN points
+pts <- data.frame(prcp.fin)
+coordinates(pts) <-  ~ long + lat
+proj4string(pts) <-
+  "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"
+pts <- crop(pts, bb)
 
+# Project the points and elevation raster to NY State Plane
+swcolprj <-
+  "+proj=lcc +lat_1=38.45 +lat_2=39.75 +lat_0=37.83333333333334 +lon_0=-105.5 +x_0=914401.8289 +y_0=304800.6096 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs"
+ptsprj <- spTransform(pts, CRS(swcolprj))
+nedprj <- projectRaster(ned_swcol, crs = swcolprj)
+
+
+# Extract elevation values at point locations
+nedpts <- raster::extract(nedprj, ptsprj)
+
+
+# Add elevation values to the points data and convert to feet
+prcp.fin <- cbind(prcp.fin, nedpts)
+prcp.fin <- mutate(prcp.fin, nedpts = round(nedpts / 0.3048, 2))
+
+prcp.fin <- prcp.fin %>% 
+  dplyr::filter(ID %in% c("USC00051886", "US1COMZ0034", "USC00055327", "USW00003061", "USC00055531"))
+
+
+cols<-c("#06407F", "#317A9D", "#4ABEBB", "#40AE89", "#467B5D",
+        "#3C6D4D", "#1A572E", "#034C00", "#045D03", "#6C975F", "#6B823A",
+        "#88A237", "#C5D16B", "#DDE580", "#FFF6AE", "#FBCB81", "#F0B16A",
+        "#F2B16D", "#D18338", "#B16F33", "#825337", "#66422A", "#4F2C0C")
+
+
+pal <- colorNumeric(cols, values(nedprj),
+                    na.color = "transparent")
+
+
+leaflet() %>% addProviderTiles("CartoDB.Positron") %>%
+  addRasterImage(nedprj, colors = pal, opacity = 0.6) %>%
+  addCircleMarkers(
+    data = prcp.fin,
+    lng = ~ long,
+    lat = ~ lat,
+    radius = ~ prcpAvg / 3,
+    stroke = F,
+    popup = paste(
+      "<strong>Station ID</strong><br>",
+      prcp.fin$ID,
+      "<br><br><strong>Average Annual<br>Precipitation</strong><br>",
+      prcp.fin$prcpAvg,
+      " inches<br><br><strong>Elevation</strong><br>",
+      prcp.fin$nedpts,
+      " feet"
+    ),
+    color = "#006B8C",
+    fillOpacity = 0.7
+  )
