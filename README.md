@@ -15,3 +15,5 @@ This repository contains code for data visualizations.
 
 ![Precipation data for individual weather stations in southwestern Colorado plotted in interactive linegraphs](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/07-leaflet/precipitation_swcol.gif?raw=true)
 [Interactive Precipitation Line Graph for Weather Stations in Southwestern Colorado](https://archaeo-programmer.github.io/html-render/)
+
+![Individual weather stations over elevation data for Mesa Verde National Park using leaflet](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/07-leaflet/leaflet_map_still.png?raw=true)
