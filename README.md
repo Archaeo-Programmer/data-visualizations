@@ -12,3 +12,5 @@ This repository contains code for data visualizations.
 ![Animated line graphs for Ancient Wealth inequality for the New and Old World](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/05-animated-lines/world_animated_inequality_deltaYears.gif?raw=true)
 
 ![Map of Mesa Verde in sepia using tmap](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/06-raster-tmap/Mesa_Verde_sepia.png?raw=true)
+
+![Interactive precipitation line graphs](https://archaeo-programmer.github.io/html-render/)
