@@ -119,6 +119,10 @@ prcp.wide <- prcp.wide[howmanyNA != (ncol(prcp.wide) - 1), ]
 prcp.wide <- data.frame(prcp.wide)
 
 prcp.xts<-xts(prcp.wide[,-1], order.by = prcp.wide[,1])
-# dygraph(prcp.xts) %>% dyRangeSelector()
 
-b <- js2graphic::svgFromHtml("precipitation_swcol.html")
+dygraph(prcp.xts) %>%
+  dyRangeSelector()
+
+
+
+
