@@ -1,49 +1,51 @@
-# https://earthobservatory.nasa.gov/images/52242/four-corners-southwestern-us
-library(terra)
-library(tmap)
-FC <- rast("fourcorners_ast_2001162_geo.tif")
+library(rayshader)
 
-map1 <-
-  tm_shape(FC) +
-  tm_rgb(r = 1, g = 2, b = 3) +
-  # tm_layout(main.title = "Topography of Mesa Verde National Park",
-  #           main.title.size = 2,
-  #           main.title.color = "black") +
-  tm_layout(
-    sepia.intensity = 0.5,
-    saturation = 0.8,
-    frame = TRUE,
-    main.title = "Topography of Mesa Verde National Park",
-    main.title.size = 1.75,
-    bg.color = "#84240c",
-    frame.double.line = TRUE,
-    frame.lwd = 2,
-    main.title.position = "center",
-    main.title.color = "black"
-  ) +
-  tm_credits(
-    text = "@Archaeo-Programmer",
-    align = c("right", "BOTTOM"),
-    size = 1,
-    col = "white"
-  ) +
-  tm_compass(position = c("left", "bottom"), type = "8star")
+# Mesa Verde bounding box.
+bb <-
+  c(
+    "xmin" = -108.6,
+    "xmax" = -108.3,
+    "ymin" = 37.156469,
+    "ymax" = 37.350311
+  ) %>%
+  sf::st_bbox() %>%
+  sf::st_as_sfc() %>%
+  sf::st_as_sf(crs = 4326) %>%
+  sf::st_transform(crs = 4326)
 
-tmap_save(map1, filename = "Four_Corners.png")
-
-
-
-library(raster)
 localtif <- raster::raster("./03-raster-timelapse/EXTRACTIONS/ned_SWCol/NED/ned_SWCol_NED_1.tif")
 
+mv_zoom <- raster::crop(localtif, bb)
+
+# dem <- raster::raster("/Volumes/DATA/NED/EXTRACTIONS/SKOPE_SWUS/rasters/NED_1.tif") %>% 
+#   raster::crop(bb)
+# 
+# vep_crop <- raster::crop(vep, bb)
+
+# Small area of MV bounding box.
+# bb_small <-
+#   c(
+#     "xmin" = -108.47651,
+#     "xmax" = -108.45231,
+#     "ymin" = 37.14609,
+#     "ymax" = 37.16982
+#   ) %>%
+#   sf::st_bbox() %>%
+#   sf::st_as_sfc() %>%
+#   sf::st_as_sf(crs = 4326) %>%
+#   sf::st_transform(crs = 4326)
+
+
 # Convert it to a matrix.
-elmat <- rayshader::raster_to_matrix(localtif)
+elmat <- rayshader::raster_to_matrix(mv_zoom)
 
-# Plot with one of rayshader's textures:
-elmat %>%
-  sphere_shade(texture = "unicorn") %>%
-  plot_map()
+elmat %>% 
+  height_shade(texture = rev((grDevices::colorRampPalette(c("#6AA85B", "#D9CC9A", "#FFFFFF")))(256))) %>% 
+  add_overlay(sphere_shade(elmat, texture = "desert", 
+                           zscale=3, colorintensity = 4), alphalayer=0.4) %>% 
+  plot_3d(elmat, zscale = 6, theta = 0, phi=45, zoom = .56, windowsize = c(1200, 800), background = '#ffffff', solid = T)
 
+render_snapshot('day28_flatearth', clear = F)
 
 elmat %>%
   sphere_shade(texture = "desert") %>%
@@ -54,76 +56,209 @@ elmat %>%
 Sys.sleep(0.2)
 render_snapshot()
 
+elmat %>%
+  sphere_shade(texture = "desert") %>%
+  add_water(detect_water(elmat), color = "desert") %>%
+  add_shadow(ray_shade(elmat, zscale = 3), 0.5) %>%
+  add_shadow(ambient_shade(elmat), 0) %>% 
+  plot_3d(elmat)
 render_camera(fov = 0, theta = 60, zoom = 1, phi = 45)
-render_scalebar(limits=c(0, 15, 30),label_unit = "km",position = "W",
-                scale_length = c(0.33,1), color_first = "black")
+render_scalebar(limits=2000,label_unit = "m",position = "W", color_first = "black")
 render_compass(position = "E", color_n = "black")
-render_snapshot(clear=TRUE)
+render_snapshot()
 
 
 
 
 # Other
-bryce <- localtif
-
-desert <- colorRampPalette(c("#ffe3b3","#6a463a","#dbaf70","#9c9988","#c09c7c"))(4)
-
-bryce_mat <- rayshader::raster_to_matrix(bryce)
-bryce_small <- rayshader::resize_matrix(bryce_mat, 0.4)
-
-bryce_small %>% 
-  height_shade(texture = rev((grDevices::colorRampPalette(c("#6AA85B", "#D9CC9A", "#FFFFFF")))(256))) %>% 
-  add_overlay(sphere_shade(bryce_small, texture = "desert", 
-                           zscale=3, colorintensity = 4), alphalayer=0.4) %>% 
-  add_shadow(lamb_shade(bryce_small,zscale=8), 0.6) %>% 
-  add_shadow(ambient_shade(bryce_small, zscale = 8), 0.4) %>% 
-  add_shadow(texture_shade(bryce_small,detail=8/10,contrast=9,brightness = 13), 0.3) %>%
-  plot_map()
+# bryce <- dem
+# 
+# # desert <- colorRampPalette(c("#ffe3b3","#6a463a","#dbaf70","#9c9988","#c09c7c"))(4)
+# 
+# bryce_mat <- rayshader::raster_to_matrix(dem)
+# bryce_small <- rayshader::resize_matrix(bryce_mat, 0.4)
+# 
+# bryce_small %>% 
+#   height_shade(texture = rev((grDevices::colorRampPalette(c("#6AA85B", "#D9CC9A", "#FFFFFF")))(256))) %>% 
+#   add_overlay(sphere_shade(bryce_small, texture = "desert", 
+#                            zscale=3, colorintensity = 4), alphalayer=0.4) %>% 
+#   add_shadow(lamb_shade(bryce_small,zscale=8), 0.6) %>% 
+#   add_shadow(ambient_shade(bryce_small, zscale = 8), 0.4) %>% 
+#   add_shadow(texture_shade(bryce_small,detail=8/10,contrast=9,brightness = 13), 0.3) %>%
+#   plot_map()
 
 # Extent of Mesa Verde National Park
-lat_range <- c(37.156469, 37.350311)
-long_range <- c(-108.6, -108.3)
+# lat_range <- c(37.156469, 37.350311)
+# long_range <- c(-108.6, -108.3)
+# 
+# convert_coords <- function(lat,long, from = CRS("+init=epsg:4326"), to) {
+#   data = data.frame(long=long, lat=lat)
+#   sp::coordinates(data) <- ~ long+lat
+#   sp::proj4string(data) = from
+#   #Convert to coordinate system specified by EPSG code
+#   xy = data.frame(sp::spTransform(data, to))
+#   colnames(xy) = c("x","y")
+#   return(unlist(xy))
+# }
+# 
+# utm_bbox <- convert_coords(lat = lat_range, long=long_range, to = crs(mv_zoom))
+# 
+# extent_zoomed <- extent(utm_bbox[1], utm_bbox[2], utm_bbox[3], utm_bbox[4])
+# bryce_zoom <- crop(bryce, extent_zoomed)
+# bryce_zoom_mat <- raster_to_matrix(bryce_zoom)
 
-convert_coords <- function(lat,long, from = CRS("+init=epsg:4326"), to) {
-  data = data.frame(long=long, lat=lat)
-  coordinates(data) <- ~ long+lat
-  proj4string(data) = from
-  #Convert to coordinate system specified by EPSG code
-  xy = data.frame(sp::spTransform(data, to))
-  colnames(xy) = c("x","y")
-  return(unlist(xy))
-}
 
-utm_bbox <- convert_coords(lat = lat_range, long=long_range, to = crs(bryce))
-
-extent_zoomed <- extent(utm_bbox[1], utm_bbox[2], utm_bbox[3], utm_bbox[4])
-bryce_zoom <- crop(bryce, extent_zoomed)
-bryce_zoom_mat <- raster_to_matrix(bryce_zoom)
-
-
-base_map <- bryce_zoom_mat %>%
+base_map <- elmat %>%
   height_shade(texture = rev((grDevices::colorRampPalette(
-    c("#6AA85B", "#D9CC9A", "#FFFFFF")
+    c("#575930", "#D9CC9A", "#FFFFFF")
   ))(256))) %>%
   add_overlay(
     sphere_shade(
-      bryce_small,
+      elmat,
       texture = "desert",
       zscale = 3,
       colorintensity = 4
     ),
-    alphalayer = 0.4
+    alphalayer = 0.55
   ) %>%
-  add_shadow(lamb_shade(bryce_zoom_mat, zscale = 8), 0.6) %>%
-  add_shadow(ambient_shade(bryce_zoom_mat, zscale = 8), 0.4) %>%
+  add_shadow(lamb_shade(elmat, zscale = 8), 0.4) %>%
+  add_shadow(ambient_shade(elmat, zscale = 1/5), 0.45) %>%
   add_shadow(texture_shade(
-    bryce_zoom_mat,
+    elmat,
     detail = 8 / 10,
     contrast = 9,
-    brightness = 13
+    brightness = 12
   ),
-  0.3)
+  0.15)
+plot_map(base_map)
 
+# OpenStreetMap requires the bounding box to be in a particular format. 
+osm_bbox <- c(-108.6, 37.156469, -108.3, 37.350311)
+
+# Extract particular features that we will add to the map separately.
+
+# Get highway data for around Mesa Verde.
+mesaverde_highway <- osmdata::opq(osm_bbox) %>% 
+  osmdata::add_osm_feature("highway") %>% 
+  osmdata::osmdata_sf()
+
+# Convert highway data into an sf object.
+mesaverde_lines <- sf::st_transform(mesaverde_highway$osm_lines, crs = raster::crs(mv_zoom))
+
+# Separate the highway data to pull out different trails and pathways.
+mesaverde_trails <- mesaverde_lines %>% 
+  dplyr::filter(highway %in% c("path","bridleway"))
+
+mesaverde_footpaths <- mesaverde_lines %>% 
+  dplyr::filter(highway %in% c("footway"))
+
+mesaverde_roads <- mesaverde_lines %>% 
+  dplyr::filter(!highway %in% c("path","bridleway", "footway"))
+
+trails_layer <- generate_line_overlay(mesaverde_footpaths, extent = raster::extent(mv_zoom),
+                                     linewidth = 4, color="black", 
+                                     heightmap = elmat) %>% 
+  add_overlay(generate_line_overlay(mesaverde_footpaths,extent = raster::extent(mv_zoom),
+                                    linewidth = 3, color="white",
+                                    heightmap = elmat)) %>%
+  add_overlay(generate_line_overlay(mesaverde_trails,extent = raster::extent(mv_zoom),
+                                    linewidth = 3, color="black", lty=3, offset = c(2,-2),
+                                    heightmap = elmat)) %>%
+  add_overlay(generate_line_overlay(mesaverde_trails,extent = raster::extent(mv_zoom),
+                                    linewidth = 3, color="white", lty=3,
+                                    heightmap = elmat)) %>%
+  add_overlay(generate_line_overlay(mesaverde_roads,extent = raster::extent(mv_zoom),
+                                    linewidth = 5, color="white",
+                                    heightmap = elmat))
+
+trails_layer2 <- generate_line_overlay(mesaverde_footpaths, extent = raster::extent(mv_zoom),
+                                       linewidth = 3, color="black", 
+                                       heightmap = elmat) %>% 
+  add_overlay(generate_line_overlay(mesaverde_footpaths,extent = raster::extent(mv_zoom),
+                                    linewidth = 2, color="white",
+                                    heightmap = elmat)) %>%
+  add_overlay(generate_line_overlay(mesaverde_trails,extent = raster::extent(mv_zoom),
+                                    linewidth = 3, color="black", lty=3, offset = c(2,-2),
+                                    heightmap = elmat)) %>%
+  add_overlay(generate_line_overlay(mesaverde_trails,extent = raster::extent(mv_zoom),
+                                    linewidth = 3, color="white", lty=3,
+                                    heightmap = elmat))
+
+# Get water data for around Mesa Verde.
+mesaverde_water_lines <- osmdata::opq(osm_bbox) %>% 
+  osmdata::add_osm_feature("waterway") %>% 
+  osmdata::osmdata_sf()
+
+# Convert water data into sf object.
+mesaverde_streams <- sf::st_transform(mesaverde_water_lines$osm_lines, crs = raster::crs(mv_zoom))
+
+# Filter to only the major rivers.
+mesaverde_rivers <- mesaverde_streams %>% 
+  dplyr::filter(name %in% c("McElmo Creek", "Mancos River", "Mud Creek", "West Fork Mud Creek", "East Fork Mud Creek"))
+
+# Create a stream layer to add to the map
+stream_layer <- rayshader::generate_line_overlay(mesaverde_rivers, extent = raster::extent(mv_zoom),
+                                                 linewidth = 4, color="skyblue2", 
+                                                 heightmap = elmat)
+
+# Get tourism data for around Mesa Verde.
+mesaverde_tourism <- osmdata::opq(osm_bbox) %>% 
+  osmdata::add_osm_feature("tourism") %>% 
+  osmdata::osmdata_sf()
+
+# Convert tourism data into sf object.
+mesaverde_tourism_points <- sf::st_transform(mesaverde_tourism$osm_points, crs = raster::crs(mv_zoom))
+
+# Filter to specific sites.
+mesaverde_attractions <- mesaverde_tourism_points %>% 
+  dplyr::filter(tourism == "attraction") %>% 
+  dplyr::filter(name %in% c("Cliff Palace", "Balcony House", "Spruce Tree House", "The Knife Edge"))
+
+# base_map %>% 
+#   add_overlay(stream_layer, alphalayer = 0.8) %>% 
+#   plot_3d(elmat, windowsize=c(1200,800))
+# render_camera(theta=240,  phi=30, zoom=0.3,  fov=60)
+# render_snapshot()
+
+
+
+watercolor = "#2a89b3"
+maxcolor = "#e6dbc8"
+mincolor = "#b6bba5"
+contour_color = "#7d4911"
+
+
+
+base_map %>% 
+  add_overlay(stream_layer, alphalayer = 0.8) %>% 
+  # add_overlay(trails_layer2) %>%
+  add_overlay(generate_point_overlay(mesaverde_attractions, extent = raster::extent(mv_zoom),
+                                     size = 2, color = "black", heightmap = elmat)) %>%
+  # add_overlay(generate_point_overlay(mesaverde_attractions, extent = raster::extent(mv_zoom),
+  #                                    size = 3, color = "white", heightmap = elmat)) %>%
+  plot_3d(elmat, zscale = 6, theta = 195, phi=45, zoom = .56, windowsize = c(1200, 800), background = '#ffffff', solid = T)
+
+# render_points(extent = raster::extent(mv_zoom), lat = c(37.16663, 37.16155, 37.18395, 37.30354), long = c(-108.47300, -108.46423, -108.48699, -108.44074), 
+#               zscale=10, color = "white", heightmap = elmat)
+# render_label(elmat,lat = 37.1666338, long = -108.4730013, extent = raster::extent(mv_zoom),
+#              text = "Cliff Palace", textsize = 50, linewidth = 5, clear_previous = TRUE)
+Sys.sleep(0.2)
+render_snapshot('MV_3Dg', clear = F)
+
+
+rgl::rgl.close()
+
+
+
+
+temp <- c(5,7,6,4,8)
+barplot(temp, col="#575930", main="#FFFFFF")
+
+c("#6AA85B", "#D9CC9A", "#FFFFFF")
+
+
+
+# OLD
 osm_bbox = c(long_range[1],lat_range[1], long_range[2],lat_range[2])
 
 bryce_highway = opq(osm_bbox) %>% 
