@@ -110,7 +110,7 @@ render_snapshot()
 
 base_map <- elmat %>%
   height_shade(texture = rev((grDevices::colorRampPalette(
-    c("#575930", "#D9CC9A", "#FFFFFF")
+    c("#575930", "#8d9779", "#a0906b", "#e8e0c9")
   ))(256))) %>%
   add_overlay(
     sphere_shade(
@@ -121,8 +121,8 @@ base_map <- elmat %>%
     ),
     alphalayer = 0.55
   ) %>%
-  add_shadow(lamb_shade(elmat, zscale = 8), 0.4) %>%
-  add_shadow(ambient_shade(elmat, zscale = 1/5), 0.45) %>%
+  add_shadow(lamb_shade(elmat, zscale = 8), 0.6) %>%
+  add_shadow(ambient_shade(elmat, zscale = 1/5), 0.6) %>%
   add_shadow(texture_shade(
     elmat,
     detail = 8 / 10,
@@ -252,7 +252,7 @@ rgl::rgl.close()
 
 
 temp <- c(5,7,6,4,8)
-barplot(temp, col="#575930", main="#FFFFFF")
+barplot(temp, col="#8CA9BE", main="#FFFFFF")
 
 c("#6AA85B", "#D9CC9A", "#FFFFFF")
 
