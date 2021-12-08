@@ -5,7 +5,7 @@ This repository contains code for data visualizations.
 
 ![3D image of Mesa Verde National Park with a 360 View](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/09-rayshader-2/MV-3D-gif2.gif?raw=true)
 
-![A sketchy map showing modern pine pollen location across the United States](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/01-roughsf/roughsf_map.png?raw=true)
+![A sketchy map showing modern pine pollen location across the United States](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/01-roughsf/roughsf_map2.png?raw=true)
 
 ![A random network hairball](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/02-graphlayouts/ggraph_net_stress.png?raw=true)
 
