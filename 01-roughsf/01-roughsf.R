@@ -5,9 +5,10 @@ library(rnaturalearth)
 library(sf)
 library(ggtext)
 library(maps)
+library(pagedown)
 
 # Modern pollen data, which was originally downloaded from the Neotoma Paleoecology Database using the neotoma R package.
-dat <- readRDS("./01-roughsf/modern_pollen.RDS")
+dat <- readRDS("modern_pollen.RDS")
 
 # Read in the United States data using the maps package. Then, transform the data to the crs = 4326 projection.
 usa <- sf::st_as_sf(maps::map("state", fill = TRUE, plot = FALSE))
@@ -49,8 +50,8 @@ roughsf_map <- roughsf::roughsf(list(usa2, dat1),
                                 title = "Modern Pine Pollen Samples across the United States", caption = "*Points are scaled based on the count of pine pollen grains at each site. Data are from the Neotoma Paleoecology Database.",
                                 title_font = "48px Pristina", font = "30px Pristina", caption_font = "18px Pristina",
                                 roughness = 1, bowing = 1, simplification = 1,
-                                width = 1600, height = 1000,
+                                width = 1900, height = 1000,
 )
 
 # Save the plot.
-roughsf::save_roughsf(roughsf_map, "./01-roughsf/roughsf_map.png")
+roughsf::save_roughsf(roughsf_map, "roughsf_map2.png")
