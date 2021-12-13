@@ -1,5 +1,5 @@
 # Data Visualizations
-This repository contains code for data visualizations.
+This repository contains code for data visualizations. This repository contains my code and output for my Data Visualizations.
 
 ![3D image of Mesa Verde National Park with major spots labeled and two rivers labeled](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/09-rayshader-2/MV_3D_Final.jpg?raw=true)
 
