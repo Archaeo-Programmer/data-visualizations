@@ -1,5 +1,12 @@
 library(sf)
 library(terra)
+library(png)
+library(grid)
+library(gridExtra)
+library(ggplot2)
+library(rayshader)
+library(rayvista)
+library(maptiles)
 
 # Goodman Point Watershed bounding box.
 GP_bb <-
@@ -36,8 +43,6 @@ dev.off()
 
 
 # Overlaying orthoimage
-library(maptiles)
-
 # Use maptiles to get ESRI world imagery.
 ortho <- maptiles::get_tiles(ext(-108.80859375, -108.632771899428, 37.2653286517636, 37.474858084971),
                    provider = "Esri.WorldImagery", zoom = 13)
@@ -53,8 +58,17 @@ dev.off()
 
 
 # 3-D map with rayshader and rayvista
-library(rayshader)
-library(rayvista)
-
 graz.3D <- rayvista::plot_3d_vista(dem = elev)
 rayshader::render_snapshot(filename = "rayvista.png")
+
+
+# Save all images in one png.
+img1 <-  grid::rasterGrob(as.raster(png::readPNG("../10-quick-relief/rayvista.png")), interpolate = FALSE)
+img2 <-  grid::rasterGrob(as.raster(png::readPNG("../10-quick-relief/GP-hillshade-ortho.png")), interpolate = FALSE)
+img3 <-  grid::rasterGrob(as.raster(png::readPNG("../10-quick-relief/GP-hillshade-contour.png")), interpolate = FALSE)
+
+#grid.arrange(img1, img3, img2, ncol = 3)
+
+#save
+g <- gridExtra::arrangeGrob(img1, img3, img2, nrow=1)
+ggsave(file="all_images.png", g)
