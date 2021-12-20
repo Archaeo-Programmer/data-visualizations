@@ -1,7 +1,28 @@
 # This is R script is just a temporary workspace until move working code into it's own folder.
 #---------------------
+library(tidyverse)
+library(rayshader)
 
+# Downtown N bounding box.
+bb <-
+  c(
+    "xmin" = -86.80200,
+    "xmax" = -86.75629,
+    "ymin" = 36.14633,
+    "ymax" = 36.17447
+  ) %>%
+  sf::st_bbox() %>%
+  sf::st_as_sfc() %>%
+  sf::st_as_sf(crs = 4326) %>%
+  sf::st_transform(crs = 4326)
 
+# shape <- sf::st_read("MCRV_TN.shp")
+
+ned_TN <- FedData::get_ned(template = bb, label = "ned_TN",
+                    res="1", force.redo = F)
+
+TN = raster::raster("ned_TN_NED_1.tif")
+elevation_matrix = raster_to_matrix(TN)
 
 # --------------------
 
