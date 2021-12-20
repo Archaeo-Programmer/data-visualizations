@@ -25,3 +25,5 @@ This repository contains my code and output for my data visualizations.
 ![Mesa Verde National Park using rayshader](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/08-rayshader/Mesa%20Verde%20Park.png?raw=true)
 
 ![Goodman Point Watershed doing some quick relief maps](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/10-quick-relief/all_images.png?raw=true)
+
+![Publications and Citations per year using BBC News layout](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/11-BBCnews-style/citations.png?raw=true)
