@@ -2,6 +2,7 @@
 #---------------------
 library(tidyverse)
 library(rayshader)
+library(raster)
 
 # Downtown N bounding box.
 bb <-
@@ -21,8 +22,26 @@ bb <-
 ned_TN <- FedData::get_ned(template = bb, label = "ned_TN",
                     res="1", force.redo = F)
 
-TN = raster::raster("ned_TN_NED_1.tif")
-elevation_matrix = raster_to_matrix(TN)
+TN <- raster::raster("ned_TN_NED_1.tif")
+elevation_matrix <- raster_to_matrix(TN)
+
+moundbottom <- raster::raster("USGS_NED_OPR_TN_Middle_B1_2018_1632653NE_TIFF_2019.tif")
+elevation_matrix <- raster_to_matrix(moundbottom)
+
+elevation_matrix %>%
+  sphere_shade() %>%
+  add_shadow(ray_shade(elevation_matrix)) %>%
+  add_shadow(ambient_shade(elevation_matrix)) %>%
+  plot_3d(elevation_matrix, zscale=50)
+render_snapshot(clear = TRUE)
+
+elevation_matrix %>%
+  sphere_shade(texture = "bw") %>%
+  add_shadow(ray_shade(elevation_matrix)) %>%
+  add_shadow(ambient_shade(elevation_matrix)) %>%
+  plot_3d(elevation_matrix, solid = TRUE, shadow = TRUE, water = TRUE)
+render_snapshot(clear = TRUE)
+
 
 # --------------------
 
