@@ -19,14 +19,15 @@ bb <-
 
 # shape <- sf::st_read("MCRV_TN.shp")
 
-ned_TN <- FedData::get_ned(template = bb, label = "ned_TN",
-                    res="1", force.redo = F)
+# ned_TN <- FedData::get_ned(template = bb, label = "ned_TN",
+#                     res="1", force.redo = F)
 
-TN <- raster::raster("ned_TN_NED_1.tif")
-elevation_matrix <- raster_to_matrix(TN)
+# TN <- raster::raster("ned_TN_NED_1.tif")
+PP <- raster("~/Dropbox/USGS_one_meter_x53y400_TN_Eastern_2_16_B16_Del1_2016.tif")
+elevation_matrix <- raster_to_matrix(PP)
 
-moundbottom <- raster::raster("USGS_NED_OPR_TN_Middle_B1_2018_1632653NE_TIFF_2019.tif")
-elevation_matrix <- raster_to_matrix(moundbottom)
+# moundbottom <- raster::raster("USGS_NED_OPR_TN_Middle_B1_2018_1632653NE_TIFF_2019.tif")
+# elevation_matrix <- raster_to_matrix(moundbottom)
 
 elevation_matrix %>%
   sphere_shade() %>%
@@ -40,8 +41,8 @@ elevation_matrix %>%
   add_shadow(ray_shade(elevation_matrix)) %>%
   add_shadow(ambient_shade(elevation_matrix)) %>%
   plot_3d(elevation_matrix, solid = TRUE, shadow = TRUE, water = TRUE)
-render_snapshot(clear = TRUE)
-
+render_snapshot('Percy Priest Lake', clear = T)
+rgl::rgl.close()
 
 # --------------------
 
