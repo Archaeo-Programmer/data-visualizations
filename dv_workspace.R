@@ -22,9 +22,20 @@ bb <-
 # ned_TN <- FedData::get_ned(template = bb, label = "ned_TN",
 #                     res="1", force.redo = F)
 
-# TN <- raster::raster("ned_TN_NED_1.tif")
+# TN <- raster::raster("~/Dropbox/WSU/data-visualizations/ned_TN_NED_1.tif")
 PP <- raster("~/Dropbox/USGS_one_meter_x53y400_TN_Eastern_2_16_B16_Del1_2016.tif")
 elevation_matrix <- raster_to_matrix(PP)
+
+Nashville <-
+  list(
+    raster("USGS_one_meter_x52y401_TN_Eastern_2_16_B16_Del1_2016.tif"),
+    raster("USGS_one_meter_x51y401_TN_Eastern_2_16_B16_Del1_2016.tif")
+  )
+Nashville <- do.call(merge, Nashville)
+Nashville <- projectRaster(Nashville, TN)
+Nashville <- crop(Nashville, bb)
+elevation_matrix <- raster_to_matrix(Nashville)
+
 
 # moundbottom <- raster::raster("USGS_NED_OPR_TN_Middle_B1_2018_1632653NE_TIFF_2019.tif")
 # elevation_matrix <- raster_to_matrix(moundbottom)
@@ -37,11 +48,21 @@ elevation_matrix %>%
 render_snapshot(clear = TRUE)
 
 elevation_matrix %>%
+  sphere_shade(texture = "imhof1") %>%
+  add_shadow(ray_shade(elevation_matrix)) %>%
+  add_shadow(ambient_shade(elevation_matrix)) %>%
+  add_water(detect_water(elevation_matrix)) %>%
+  plot_3d(elevation_matrix, solid = TRUE, shadow = TRUE, zscale = 3)
+render_snapshot('Nashville', clear = T)
+rgl::rgl.close()
+
+
+elevation_matrix %>%
   sphere_shade(texture = "bw") %>%
   add_shadow(ray_shade(elevation_matrix)) %>%
   add_shadow(ambient_shade(elevation_matrix)) %>%
-  plot_3d(elevation_matrix, solid = TRUE, shadow = TRUE, water = TRUE)
-render_snapshot('Percy Priest Lake', clear = T)
+  plot_3d(elevation_matrix, solid = TRUE, shadow = TRUE, water = TRUE, zscale = 3, waterheight = 0.1)
+render_snapshot('Nashville', clear = T)
 rgl::rgl.close()
 
 # --------------------
