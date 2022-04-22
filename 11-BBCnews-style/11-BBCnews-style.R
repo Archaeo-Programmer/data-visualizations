@@ -49,7 +49,8 @@ citation <- scholar::get_citation_history("1OebEyQAAAAJ") %>%
   tidyr::complete(year = full_seq(year, 1), 
                   fill = list(cites = 0)) %>% 
   dplyr::left_join(., publications, by = "year") %>% 
-  dplyr::rename(Citations = cites, Year = year)
+  dplyr::rename(Citations = cites, Year = year) %>% 
+  mutate(Publications = ifelse(is.na(Publications), 0, Publications))
 
 
 
