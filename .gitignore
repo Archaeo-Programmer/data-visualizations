@@ -41,3 +41,7 @@ vignettes/*.pdf
 # Mac trash files
 .DS_Store
 */.DS_Store
+
+# Ignore directory of files
+hide/
+/hide/
