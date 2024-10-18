@@ -33,7 +33,8 @@ venues <-
 # Get number of publications per year for myself.
 publications <- scholar::get_publications("1OebEyQAAAAJ") %>% 
   dplyr::mutate(journal = ifelse(str_detect(journal, fixed("Anthropology Senior Thesis")), "Anthropology Senior Thesis", journal)) %>% 
-  dplyr::filter(journal %in% venues) %>% 
+  #dplyr::filter(journal %in% venues) %>% 
+  dplyr::filter(!is.na(year)) %>% 
   dplyr::select(year) %>% 
   dplyr::mutate(Publications = 1) %>% 
   dplyr::group_by(year) %>% 
@@ -68,7 +69,7 @@ p <- ggplot(citation, aes(Year)) +
     legend.box = "horizontal",
     plot.title = element_text(size = 20, hjust = 0.5)
   ) +
-  scale_x_continuous(breaks = seq(2011, 2021, by = 2)) +
+  scale_x_continuous(breaks = seq(2011, 2024, by = 2)) +
   scale_y_continuous(breaks = seq(0, 20, by = 2)) +
   ylab("Number of Publications") +
   xlab("Year")
