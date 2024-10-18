@@ -80,4 +80,3 @@ finalise_plot(plot_name = p,
               save_filepath = "citations.png",
               width_pixels = 640,
               height_pixels = 550)
-
