@@ -70,7 +70,7 @@ p <- ggplot(citation, aes(Year)) +
     plot.title = element_text(size = 20, hjust = 0.5)
   ) +
   scale_x_continuous(breaks = seq(2011, 2024, by = 2)) +
-  scale_y_continuous(breaks = seq(0, 20, by = 2)) +
+  scale_y_continuous(breaks = seq(0, 26, by = 2)) +
   ylab("Number of Publications") +
   xlab("Year")
 
