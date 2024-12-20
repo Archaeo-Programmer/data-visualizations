@@ -58,7 +58,7 @@ citation <- scholar::get_citation_history("1OebEyQAAAAJ") %>%
 # Here we plot and use the BBC News layout from bbplot.
 p <- ggplot(citation, aes(Year)) +
   geom_bar(aes(y = Publications, fill = "Publications"), stat = "identity") +
-  geom_line(aes(y = Citations, group = 1, color = "Citations"), size = 2) +
+  geom_line(aes(y = Citations, group = 1, color = "Citations"), linewidth = 2) +
   scale_colour_manual(" ", values = c("Citations" = "#009E73")) +
   scale_fill_manual("", values = "#56B4E9") +
   bbc_style() +
@@ -70,7 +70,7 @@ p <- ggplot(citation, aes(Year)) +
     plot.title = element_text(size = 20, hjust = 0.5)
   ) +
   scale_x_continuous(breaks = seq(2011, 2024, by = 2)) +
-  scale_y_continuous(breaks = seq(0, 26, by = 2)) +
+  scale_y_continuous(breaks = seq(0, 30, by = 2)) +
   ylab("Number of Publications") +
   xlab("Year")
 
