@@ -50,6 +50,7 @@ pop <- ggplot(data = df, aes(
                     transition_length = 2,
                     state_length = 1) +
   labs(title = 'Country: {closest_state}', fill = "Sex") +
+  theme_bw() +
   ease_aes('linear')
 
 # For saving the animation (though you can change the size, resolution, etc.)
