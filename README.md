@@ -27,3 +27,6 @@ This repository contains my code and output for my data visualizations.
 ![Goodman Point Watershed doing some quick relief maps](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/10-quick-relief/all_images.png?raw=true)
 
 ![Publications and Citations per year using BBC News layout](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/11-BBCnews-style/citations.png?raw=true)
+
+![Animated bar chart that shows changes in allocation over time](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/12-animated-barcharts/animated_barchart.gif?raw=true)
+
