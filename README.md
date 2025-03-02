@@ -30,3 +30,5 @@ This repository contains my code and output for my data visualizations.
 
 ![Animated bar chart that shows changes in allocation over time](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/12-animated-barcharts/animated_barchart.gif?raw=true)
 
+![Animated line graph that shows changes in allocation over time]()
+
