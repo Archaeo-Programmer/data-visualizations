@@ -6,7 +6,6 @@ library(hrbrthemes)
 # Data is from Kohler et al. 2017 (available at: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5714260/bin/NIHMS74617-supplement-Supplementary_table_2.xls).
 inequality <- readxl::read_xls("Kohler_et_al_2017_inequality.xls")
 
-
 plot <- inequality %>%
   ggplot(aes(
     x = Date_AD,
