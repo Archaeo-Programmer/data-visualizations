@@ -32,5 +32,5 @@ This repository contains my code and output for my data visualizations.
 
 ![Animated line graph that shows changes in allocation over time](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/13-animated-line-graph/animated-line-graph.gif?raw=true)
 
-![Animation of NDVI (MODIS) through time for the continental US](https://github.com/Archaeo-Programmer/data-visualizations/blob/18872cd08ded845ab9c47982d9eeea9fb4531b57/14-NDVI-animation/NDVI_animation.mp4?raw=true)
+![Animation of NDVI (MODIS) through time for the continental US](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/14-NDVI-animation/NDVI_animation.gif?raw=true)
 
