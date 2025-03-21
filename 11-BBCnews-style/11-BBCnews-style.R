@@ -56,7 +56,10 @@ citation <- scholar::get_citation_history("1OebEyQAAAAJ") %>%
 
 
 # Here we plot and use the BBC News layout from bbplot.
-p <- ggplot(citation, aes(Year)) +
+p <- citation %>% 
+  # only want to plot complete years
+  dplyr::filter(Year < 2025) %>% 
+  ggplot(., aes(Year)) +
   geom_bar(aes(y = Publications, fill = "Publications"), stat = "identity") +
   geom_line(aes(y = Citations, group = 1, color = "Citations"), linewidth = 2) +
   scale_colour_manual(" ", values = c("Citations" = "#009E73")) +
