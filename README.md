@@ -40,11 +40,13 @@ This repository contains my code and output for my data visualizations.
 ![Publications and Citations per year using BBC News layout](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/11-BBCnews-style/citations.png?raw=true)
 
 [**12-animated-barcharts**](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/12-animated-barcharts)
+
 ![Animated bar chart that shows changes in allocation over time](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/12-animated-barcharts/animated_barchart.gif?raw=true)
 
 [**13-animated-line-graph**](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/13-animated-line-graph)
 ![Animated line graph that shows changes in allocation over time](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/13-animated-line-graph/animated-line-graph.gif?raw=true)
 
 [**14-NDVI-animation**](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/14-NDVI-animation)
+
 ![Animation of NDVI (MODIS) through time for the continental US](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/14-NDVI-animation/NDVI_animation.gif?raw=true)
 
