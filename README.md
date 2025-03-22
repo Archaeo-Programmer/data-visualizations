@@ -1,12 +1,8 @@
 # Data Visualizations
 This repository contains my code and output for my data visualizations.
 
-[**09-rayshader-2**](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/09-rayshader-2)
- <font size="5"> 09-rayshader-2</font> 
- 
- <font size="6"> 09-rayshader-2</font>
+## [**09-rayshader-2**](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/09-rayshader-2)
 
-<span style="font-size:60px;">[<strong>09-rayshader-2</strong>](https://github.com/Archaeo-Programmer/data-visualizations/tree/main/09-rayshader-2)</span>
 ![3D image of Mesa Verde National Park with major spots labeled and two rivers labeled](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/09-rayshader-2/MV_3D_Final.jpg?raw=true)
 
 ![3D image of Mesa Verde National Park with a 360 View](https://github.com/Archaeo-Programmer/data-visualizations/blob/main/09-rayshader-2/MV-3D-gif2.gif?raw=true)
